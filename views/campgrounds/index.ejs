@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campgrounds</title>
+  </head>
+  <body>
+    <h1>Campgrounds</h1>
+
+    <div>
+      <a href="/campgrounds/new">Add Campground</a>
+    </div>
+
+    <Ul>
+      <% for( let i = 0; i < allCamps.length; i++ ) { %>
+      <strong>camp Num #<%= i+1 %></strong>
+      <li>
+        <a href="/campgrounds/<%= allCamps[i]._id %>"
+          ><%= allCamps[i].title %>
+        </a>
+      </li>
+      <li><%= allCamps[i].location %></li>
+      <br />
+      <% } %>
+    </Ul>
+  </body>
+</html>
