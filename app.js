@@ -1,5 +1,6 @@
 require('dotenv').config();
 const methodOverrided = require('method-override');
+const ejsMate = require('ejs-mate');
 
 //db connection
 const mongoose = require('mongoose');
@@ -20,8 +21,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverrided('_method'));
 
 // set the view engine to ejs
+app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', `${__dirname}/views`);
+app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   res.render('home');
@@ -34,8 +37,8 @@ app.get('/campgrounds/new', (req, res) => {
 });
 
 app.post('/campgrounds', async (req, res) => {
-  await Campground.create(req.body.campground);
-  res.redirect('/campgrounds');
+  const newCamp = await Campground.create(req.body.campground);
+  res.redirect(`/campgrounds/${newCamp._id}`);
 });
 
 //Read All
