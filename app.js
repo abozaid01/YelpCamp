@@ -43,9 +43,8 @@ app.post(
   catchAsync(async (req, res) => {
     if (!req.body.campground)
       throw new ExpressError('Invalid Campground data', 400);
-    console.log(req.body.campground);
+
     const newCamp = await Campground.create(req.body.campground);
-    console.log(newCamp);
 
     res.redirect(`/campgrounds/${newCamp._id}`);
   })
@@ -103,7 +102,8 @@ app.all('*', (req, res, next) => {
 //Error Handler
 app.use((err, req, res, next) => {
   const { statusCode = 500, message = 'Something Went Wrong' } = err;
-  res.status(statusCode).send(message);
+  if (!err.message) err.message = message;
+  res.status(statusCode).render('error', { err });
 });
 
 app.listen(3000, () => {
