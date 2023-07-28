@@ -14,6 +14,7 @@ db.once('open', () => {
 const Campground = require('./models/campgroud');
 const ExpressError = require('./utils/ExpressError');
 const catchAsync = require('./utils/catchAsync');
+const { campgroudSchema } = require('./utils/schemas');
 
 // express server
 const express = require('express');
@@ -32,6 +33,13 @@ app.get('/', (req, res) => {
   res.render('home');
 });
 
+const validateCampground = (req, res, next) => {
+  const { error } = campgroudSchema.validate(req.body);
+  if (error) throw new ExpressError(error.message, 400);
+
+  next();
+};
+
 //CRUD
 //Create
 app.get('/campgrounds/new', (req, res) => {
@@ -40,10 +48,8 @@ app.get('/campgrounds/new', (req, res) => {
 
 app.post(
   '/campgrounds',
+  validateCampground,
   catchAsync(async (req, res) => {
-    if (!req.body.campground)
-      throw new ExpressError('Invalid Campground data', 400);
-
     const newCamp = await Campground.create(req.body.campground);
 
     res.redirect(`/campgrounds/${newCamp._id}`);
@@ -79,6 +85,7 @@ app.get(
 
 app.put(
   '/campgrounds/:_id',
+  validateCampground,
   catchAsync(async (req, res) => {
     await Campground.findByIdAndUpdate(req.params._id, req.body.campground);
     res.redirect(`/campgrounds/${req.params._id}`);
