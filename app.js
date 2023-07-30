@@ -12,12 +12,14 @@ db.once('open', () => {
 });
 
 const Campground = require('./models/campgroud');
+const Review = require('./models/review');
 const ExpressError = require('./utils/ExpressError');
 const catchAsync = require('./utils/catchAsync');
-const { campgroudSchema } = require('./utils/schemas');
+const { campgroudSchema, reviewSchema } = require('./utils/schemas');
 
 // express server
 const express = require('express');
+const review = require('./models/review');
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +37,13 @@ app.get('/', (req, res) => {
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroudSchema.validate(req.body);
+  if (error) throw new ExpressError(error.message, 400);
+
+  next();
+};
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
   if (error) throw new ExpressError(error.message, 400);
 
   next();
@@ -69,7 +78,7 @@ app.get(
 app.get(
   '/campgrounds/:_id',
   catchAsync(async (req, res) => {
-    const camp = await Campground.findById(req.params._id);
+    const camp = await Campground.findById(req.params._id).populate('reviews');
     res.render('campgrounds/show', { camp });
   })
 );
@@ -98,6 +107,37 @@ app.delete(
   catchAsync(async (req, res) => {
     await Campground.findByIdAndDelete(req.params._id, req.body.ampground);
     res.redirect('/campgrounds');
+  })
+);
+
+//Reviews Routes
+app.post(
+  '/campgrounds/:camp_id/reviews',
+  validateReview,
+  catchAsync(async (req, res, next) => {
+    const campgroud = await Campground.findById(req.params.camp_id);
+
+    const newReview = new Review(req.body.review);
+    campgroud.reviews.push(newReview);
+
+    await newReview.save();
+    await campgroud.save();
+
+    res.redirect(`/campgrounds/${campgroud._id}`);
+  })
+);
+
+app.delete(
+  '/campgrounds/:camp_id/reviews/:review_id',
+  catchAsync(async (req, res, next) => {
+    const { camp_id, review_id } = req.params;
+
+    const camp = await Campground.findByIdAndUpdate(camp_id, {
+      $pull: { reviews: review_id },
+    });
+    const rev = await Review.findByIdAndDelete(review_id);
+
+    res.redirect(`/campgrounds/${camp_id}`);
   })
 );
 
