@@ -24,6 +24,7 @@ router.post(
   catchAsync(async (req, res) => {
     const newCamp = await Campground.create(req.body.campground);
 
+    req.flash('success', 'new Campground Successfully created');
     res.redirect(`/campgrounds/${newCamp._id}`);
   })
 );
@@ -42,6 +43,12 @@ router.get(
   '/:_id',
   catchAsync(async (req, res) => {
     const camp = await Campground.findById(req.params._id).populate('reviews');
+    if (!camp) {
+      // throw new ExpressError('campground not found!!', 404);
+      req.flash('error', 'Cannot find that campground');
+      res.redirect('/campgrounds');
+    }
+
     res.render('campgrounds/show', { camp });
   })
 );
@@ -51,7 +58,10 @@ router.get(
   '/:_id/edit',
   catchAsync(async (req, res) => {
     const camp = await Campground.findById(req.params._id);
-    res.render('campgrounds/edit', { camp });
+    if (!camp) {
+      req.flash('error', 'Cannot find that campground');
+      res.redirect('/campgrounds');
+    } else res.render('campgrounds/edit', { camp });
   })
 );
 
@@ -59,7 +69,13 @@ router.put(
   '/:_id',
   validateCampground,
   catchAsync(async (req, res) => {
-    await Campground.findByIdAndUpdate(req.params._id, req.body.campground);
+    const camp = await Campground.findByIdAndUpdate(
+      req.params._id,
+      req.body.campground
+    );
+    if (!camp) throw new ExpressError('Campground Not Found', 404);
+
+    req.flash('success', 'Campground Successfully updated');
     res.redirect(`/campgrounds/${req.params._id}`);
   })
 );
@@ -69,6 +85,8 @@ router.delete(
   '/:_id',
   catchAsync(async (req, res) => {
     await Campground.findByIdAndDelete(req.params._id, req.body.ampground);
+
+    req.flash('success', 'campground successfully deleted');
     res.redirect('/campgrounds');
   })
 );

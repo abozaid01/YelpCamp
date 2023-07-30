@@ -1,6 +1,8 @@
 require('dotenv').config();
 const methodOverrided = require('method-override');
 const ejsMate = require('ejs-mate');
+const session = require('express-session');
+const flash = require('connect-flash');
 
 //db connection
 const mongoose = require('mongoose');
@@ -21,12 +23,30 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverrided('_method'));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
+  })
+);
+app.use(flash());
 
 // set the view engine to ejs
 app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', `${__dirname}/views`);
 app.use(express.static('public'));
+
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  next();
+});
 
 app.get('/', (req, res) => {
   res.render('home');

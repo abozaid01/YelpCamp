@@ -26,6 +26,7 @@ router.post(
     await newReview.save();
     await campgroud.save();
 
+    req.flash('success', 'new review successfully created');
     res.redirect(`/campgrounds/${campgroud._id}`);
   })
 );
@@ -40,6 +41,7 @@ router.delete(
     });
     const rev = await Review.findByIdAndDelete(review_id);
 
+    req.flash('success', 'review successfully deleted');
     res.redirect(`/campgrounds/${camp_id}`);
   })
 );
