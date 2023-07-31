@@ -17,6 +17,7 @@ db.once('open', () => {
 
 const ExpressError = require('./utils/ExpressError');
 const UserModel = require('./models/user');
+const userRoutes = require('./routes/users');
 const campgroudRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 
@@ -46,12 +47,6 @@ passport.use(new LocalStartegy(UserModel.authenticate()));
 passport.serializeUser(UserModel.serializeUser());
 passport.deserializeUser(UserModel.deserializeUser());
 
-app.get('/fakeUser', async (req, res) => {
-  const user = new UserModel({ email: 'me@gmail.com', username: 'me' });
-  const newUser = await UserModel.register(user, 'secretPassword');
-  res.send(newUser);
-});
-
 // set the view engine to ejs
 app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
@@ -70,6 +65,7 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/campgrounds', campgroudRoutes);
 app.use('/campgrounds/:camp_id/reviews', reviewRoutes);
+app.use('/', userRoutes);
 
 // 404
 app.all('*', (req, res, next) => {
