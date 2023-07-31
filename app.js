@@ -3,6 +3,8 @@ const methodOverrided = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
+const LocalStartegy = require('passport-local');
 
 //db connection
 const mongoose = require('mongoose');
@@ -14,6 +16,7 @@ db.once('open', () => {
 });
 
 const ExpressError = require('./utils/ExpressError');
+const UserModel = require('./models/user');
 const campgroudRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 
@@ -36,6 +39,18 @@ app.use(
   })
 );
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStartegy(UserModel.authenticate()));
+passport.serializeUser(UserModel.serializeUser());
+passport.deserializeUser(UserModel.deserializeUser());
+
+app.get('/fakeUser', async (req, res) => {
+  const user = new UserModel({ email: 'me@gmail.com', username: 'me' });
+  const newUser = await UserModel.register(user, 'secretPassword');
+  res.send(newUser);
+});
 
 // set the view engine to ejs
 app.engine('ejs', ejsMate);
