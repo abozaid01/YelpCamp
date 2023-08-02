@@ -54,6 +54,7 @@ app.set('views', `${__dirname}/views`);
 app.use(express.static('public'));
 
 app.use((req, res, next) => {
+  res.locals.user = req.user;
   res.locals.messages = req.flash();
   next();
 });
