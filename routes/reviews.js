@@ -3,6 +3,7 @@ const Campground = require('../models/campgroud');
 const ExpressError = require('../utils/ExpressError');
 const catchAsync = require('../utils/catchAsync');
 const { reviewSchema } = require('./../utils/schemas');
+const isLoggedIn = require('../utils/isLoggedInMiddleware');
 
 const express = require('express');
 const router = express.Router({ mergeParams: true });
@@ -17,6 +18,7 @@ const validateReview = (req, res, next) => {
 router.post(
   '/',
   validateReview,
+  isLoggedIn,
   catchAsync(async (req, res, next) => {
     const campgroud = await Campground.findById(req.params.camp_id);
 
@@ -33,6 +35,7 @@ router.post(
 
 router.delete(
   '/:review_id',
+  isLoggedIn,
   catchAsync(async (req, res, next) => {
     const { camp_id, review_id } = req.params;
 

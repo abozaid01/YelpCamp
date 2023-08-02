@@ -1,10 +1,7 @@
-const { appendFile } = require('fs');
 const User = require('../models/user');
-const ExpressError = require('../utils/ExpressError');
-const catchAsync = require('../utils/catchAsync');
-// const { reviewSchema } = require('./../utils/schemas');
 
 const express = require('express');
+const passport = require('passport');
 const router = express.Router();
 
 router.get('/register', (req, res) => {
@@ -15,7 +12,7 @@ router.post('/register', async (req, res) => {
   try {
     const { email, username, password } = req.body;
     const user = new User({ email, username });
-    const registeredUser = await User.register(user, password);
+    await User.register(user, password);
 
     req.flash('success', 'Welcome to YelpCamp');
     res.redirect('/campgrounds');
@@ -24,5 +21,21 @@ router.post('/register', async (req, res) => {
     res.redirect('/register');
   }
 });
+
+router.get('/login', (req, res) => {
+  res.render('users/login');
+});
+
+router.post(
+  '/login',
+  passport.authenticate('local', {
+    failureFlash: true,
+    failureRedirect: '/login',
+  }),
+  (req, res) => {
+    req.flash('success', 'Welcome Back');
+    res.redirect('/campgrounds');
+  }
+);
 
 module.exports = router;

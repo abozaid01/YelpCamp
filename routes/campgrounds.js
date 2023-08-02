@@ -2,6 +2,7 @@ const Campground = require('../models/campgroud');
 const ExpressError = require('../utils/ExpressError');
 const catchAsync = require('../utils/catchAsync');
 const { campgroudSchema } = require('./../utils/schemas');
+const isLoggedIn = require('../utils/isLoggedInMiddleware');
 
 const express = require('express');
 const router = express.Router();
@@ -14,12 +15,13 @@ const validateCampground = (req, res, next) => {
 };
 
 //Create
-router.get('/new', (req, res) => {
+router.get('/new', isLoggedIn, (req, res) => {
   res.render('campgrounds/new');
 });
 
 router.post(
   '/',
+  isLoggedIn,
   validateCampground,
   catchAsync(async (req, res) => {
     const newCamp = await Campground.create(req.body.campground);
@@ -56,6 +58,7 @@ router.get(
 //Update
 router.get(
   '/:_id/edit',
+  isLoggedIn,
   catchAsync(async (req, res) => {
     const camp = await Campground.findById(req.params._id);
     if (!camp) {
@@ -67,6 +70,7 @@ router.get(
 
 router.put(
   '/:_id',
+  isLoggedIn,
   validateCampground,
   catchAsync(async (req, res) => {
     const camp = await Campground.findByIdAndUpdate(
@@ -83,6 +87,7 @@ router.put(
 //Delete
 router.delete(
   '/:_id',
+  isLoggedIn,
   catchAsync(async (req, res) => {
     await Campground.findByIdAndDelete(req.params._id, req.body.ampground);
 
