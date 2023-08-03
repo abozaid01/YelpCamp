@@ -20,9 +20,10 @@ const rand = arr => arr[Math.floor(Math.random() * arr.length)];
 seedDB = async () => {
   await Campground.deleteMany({});
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
     const price = Math.floor(Math.random() * 20) + 10;
     const newCamp = new Campground({
+      author: '64c81a063c5733ebaecc6ee3', //initial ussr @test
       title: `${rand(descriptors)} ${rand(places)}`,
       location: `${rand(cities).city}, ${rand(cities).state}`,
       image: `https://source.unsplash.com/collection/483251`,
