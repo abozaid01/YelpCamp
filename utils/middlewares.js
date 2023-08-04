@@ -1,6 +1,7 @@
 const Campground = require('../models/campgroud');
+const Review = require('../models/review');
 const ExpressError = require('./ExpressError');
-const { campgroudSchema } = require('./schemas');
+const { campgroudSchema, reviewSchema } = require('./schemas');
 
 exports.isLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
@@ -25,8 +26,24 @@ exports.isAuthorized = async (req, res, next) => {
   next();
 };
 
+exports.isReviewAuthorized = async (req, res, next) => {
+  const review = await Review.findById(req.params.review_id);
+  if (!review.author._id.equals(req.user?._id)) {
+    req.flash('error', "You Don't have Permissions");
+    return res.status(403).redirect(`/campgrounds/${req.params.camp_id}`);
+  }
+  next();
+};
+
 exports.validateCampground = (req, res, next) => {
   const { error } = campgroudSchema.validate(req.body);
+  if (error) throw new ExpressError(error.message, 400);
+
+  next();
+};
+
+exports.validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
   if (error) throw new ExpressError(error.message, 400);
 
   next();

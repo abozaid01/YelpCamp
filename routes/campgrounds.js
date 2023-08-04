@@ -43,7 +43,7 @@ router.get(
   '/:_id',
   catchAsync(async (req, res) => {
     const camp = await Campground.findById(req.params._id)
-      .populate('reviews')
+      .populate({ path: 'reviews', populate: { path: 'author' } }) //Nested Population
       .populate('author');
     if (!camp) {
       // throw new ExpressError('campground not found!!', 404);
