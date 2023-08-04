@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const { storeReturnTo } = require('../utils/isLoggedInMiddleware');
+const { storeReturnTo } = require('../utils/middlewares');
 
 const express = require('express');
 const passport = require('passport');

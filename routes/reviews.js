@@ -3,7 +3,7 @@ const Campground = require('../models/campgroud');
 const ExpressError = require('../utils/ExpressError');
 const catchAsync = require('../utils/catchAsync');
 const { reviewSchema } = require('./../utils/schemas');
-const { isLoggedIn } = require('../utils/isLoggedInMiddleware');
+const { isLoggedIn } = require('../utils/middlewares');
 
 const express = require('express');
 const router = express.Router({ mergeParams: true });

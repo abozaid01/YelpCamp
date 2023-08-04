@@ -1,18 +1,14 @@
 const Campground = require('../models/campgroud');
 const ExpressError = require('../utils/ExpressError');
 const catchAsync = require('../utils/catchAsync');
-const { campgroudSchema } = require('./../utils/schemas');
-const { isLoggedIn } = require('../utils/isLoggedInMiddleware');
+const {
+  isLoggedIn,
+  isAuthorized,
+  validateCampground,
+} = require('../utils/middlewares');
 
 const express = require('express');
 const router = express.Router();
-
-const validateCampground = (req, res, next) => {
-  const { error } = campgroudSchema.validate(req.body);
-  if (error) throw new ExpressError(error.message, 400);
-
-  next();
-};
 
 //Create
 router.get('/new', isLoggedIn, (req, res) => {
@@ -63,6 +59,7 @@ router.get(
 router.get(
   '/:_id/edit',
   isLoggedIn,
+  isAuthorized,
   catchAsync(async (req, res) => {
     const camp = await Campground.findById(req.params._id);
     if (!camp) {
@@ -75,6 +72,7 @@ router.get(
 router.put(
   '/:_id',
   isLoggedIn,
+  isAuthorized,
   validateCampground,
   catchAsync(async (req, res) => {
     const camp = await Campground.findByIdAndUpdate(
@@ -92,6 +90,7 @@ router.put(
 router.delete(
   '/:_id',
   isLoggedIn,
+  isAuthorized,
   catchAsync(async (req, res) => {
     await Campground.findByIdAndDelete(req.params._id, req.body.ampground);
 
