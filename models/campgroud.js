@@ -3,17 +3,20 @@ const Schema = mongoose.Schema;
 const Review = require('./review');
 const { cloudinary } = require('../cloudinary');
 
+const imgSchema = new Schema({
+  url: String,
+  filename: String,
+});
+imgSchema.virtual('thumbnail').get(function () {
+  return this.url.replace('/upload', '/upload/w_200,h_200');
+});
+
 const CampgroundScema = new Schema({
   title: String,
   price: Number,
   description: String,
   location: String,
-  images: [
-    {
-      url: String,
-      filename: String,
-    },
-  ],
+  images: [imgSchema],
   author: {
     type: Schema.Types.ObjectId,
     ref: 'User',
