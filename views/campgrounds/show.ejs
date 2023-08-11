@@ -1,6 +1,8 @@
 <% layout('layouts/boilerplate')%>
 <link rel="stylesheet" href="/css/starability-growRotate.min.css" />
 
+<div id="map" style="width: 400px; height: 300px"></div>
+
 <div class="row">
   <div class="col-6">
     <div class="card mb-3">
@@ -159,3 +161,9 @@
     <% } %>
   </div>
 </div>
+
+<script>
+  const MAPBOX_TOKEN = '<%= process.env.MAPBOX_TOKEN%>';
+  const campground = <%- JSON.stringify(camp) %>;
+</script>
+<script src="/js/showPageMap.js"></script>

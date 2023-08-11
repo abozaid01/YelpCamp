@@ -20,7 +20,7 @@ const rand = arr => arr[Math.floor(Math.random() * arr.length)];
 seedDB = async () => {
   await Campground.deleteMany({});
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 200; i++) {
     const price = Math.floor(Math.random() * 20) + 10;
     const newCamp = new Campground({
       author: '64c81a063c5733ebaecc6ee3', //initial ussr @test
@@ -38,6 +38,10 @@ seedDB = async () => {
           filename: 'YelpCamp/aeos0tjb9ljptohwkxpg',
         },
       ],
+      geometry: {
+        type: 'Point',
+        coordinates: [rand(cities).longitude, rand(cities).latitude],
+      },
     });
     await newCamp.save();
   }
