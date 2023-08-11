@@ -5,6 +5,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStartegy = require('passport-local');
+const mongoSanitize = require('express-mongo-sanitize');
 
 //db connection
 const mongoose = require('mongoose');
@@ -42,6 +43,7 @@ app.use(
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(mongoSanitize({ replaceWith: '_' }));
 
 passport.use(new LocalStartegy(UserModel.authenticate()));
 passport.serializeUser(UserModel.serializeUser());
