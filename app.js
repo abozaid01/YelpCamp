@@ -2,6 +2,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 const methodOverrided = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStartegy = require('passport-local');
@@ -29,8 +30,20 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverrided('_method'));
+
+const store = new MongoStore({
+  mongoUrl: process.env.DB_URL,
+  secret: process.env.SESSION_SECRET,
+  touchAfter: 24 * 60 * 60, //in seconds
+});
+
+store.on('error', e => {
+  console.log('SESSION STORE ERROR!', e);
+});
+
 app.use(
   session({
+    store,
     name: 'S__ID',
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -38,7 +51,7 @@ app.use(
     cookie: {
       httpOnly: true,
       // secure: true,
-      expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+      expires: Date.now() + 1000 * 60 * 60 * 24 * 7, //in milliseconds
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
