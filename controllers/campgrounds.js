@@ -2,7 +2,6 @@ const Campground = require('../models/campgroud');
 const { cloudinary } = require('../cloudinary');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const campgroud = require('../models/campgroud');
-const { query } = require('express');
 
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAPBOX_TOKEN });
 
@@ -39,7 +38,6 @@ exports.index = async (req, res) => {
 };
 
 exports.show = async (req, res) => {
-  console.log(req.query);
   const camp = await Campground.findById(req.params._id)
     .populate({ path: 'reviews', populate: { path: 'author' } }) //Nested Population
     .populate('author');

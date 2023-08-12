@@ -1,4 +1,4 @@
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 const methodOverrided = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
@@ -6,6 +6,7 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStartegy = require('passport-local');
 const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
 
 //db connection
 const mongoose = require('mongoose');
@@ -30,11 +31,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverrided('_method'));
 app.use(
   session({
+    name: 'S__ID',
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
       httpOnly: true,
+      // secure: true,
       expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
@@ -44,6 +47,42 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(mongoSanitize({ replaceWith: '_' }));
+app.use(helmet());
+const scriptSrcUrls = [
+  'https://api.tiles.mapbox.com/',
+  'https://api.mapbox.com/',
+];
+const styleSrcUrls = [
+  'https://api.mapbox.com/',
+  'https://api.tiles.mapbox.com/',
+];
+const connectSrcUrls = [
+  'https://api.mapbox.com/',
+  'https://a.tiles.mapbox.com/',
+  'https://b.tiles.mapbox.com/',
+  'https://events.mapbox.com/',
+];
+const fontSrcUrls = [];
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", 'blob:'],
+      objectSrc: [],
+      imgSrc: [
+        "'self'",
+        'blob:',
+        'data:',
+        `https://res.cloudinary.com/${process.env.CLOUDINARY_NAME}/`,
+        'https://images.unsplash.com/',
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls],
+    },
+  })
+);
 
 passport.use(new LocalStartegy(UserModel.authenticate()));
 passport.serializeUser(UserModel.serializeUser());
